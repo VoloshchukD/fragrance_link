@@ -1,29 +1,57 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.1'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id "com.github.node-gradle.node" version '7.1.0'
 }
 
 group = 'com.aroma'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+}
+
+node {
+    download = true
+    version = '22.13.0'
+    nodeProjectDir = file("$rootDir/src/ui")
+}
+
+tasks.register('npmBuild', NpmTask) {
+    args = ['run', 'build']
+}
+
+tasks.register('copyWebApp', Copy) {
+    from "$rootDir/src/ui/build"
+    into "${layout.buildDirectory.get().asFile}/resources/main/static"
+}
+
+tasks.named('compileJava') {
+    dependsOn('npmBuild')
+}
+
+tasks.named('processResources') {
+    dependsOn('copyWebApp')
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
