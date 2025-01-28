@@ -1,12 +1,18 @@
-package com.aroma.fragrance_link;
+package com.aroma.fragrance_link.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+import java.util.List;
 
 @Entity
-public class Perfume {
+@Table(name = "brand")
+public class Brand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +21,11 @@ public class Perfume {
     private String name;
 
     private String description;
+
+    private String country;
+
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Perfume> perfumes;
 
     public Long getId() {
         return id;
@@ -38,6 +49,22 @@ public class Perfume {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public List<Perfume> getPerfumes() {
+        return perfumes;
+    }
+
+    public void setPerfumes(List<Perfume> perfumes) {
+        this.perfumes = perfumes;
     }
 }
 
