@@ -1,13 +1,22 @@
 package com.aroma.fragrance_link.controller;
 
 import com.aroma.fragrance_link.entity.Perfume;
+import com.aroma.fragrance_link.entity.Views;
 import com.aroma.fragrance_link.service.PerfumeService;
-import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/perfumes")
+@RequestMapping("/api/perfumes")
 public class PerfumeController {
     private final PerfumeService perfumeService;
 
@@ -21,6 +30,7 @@ public class PerfumeController {
     }
 
     @GetMapping
+    @JsonView(Views.PerfumeDetails.class)
     public List<Perfume> getAllPerfumes() {
         return perfumeService.getAllPerfumes();
     }

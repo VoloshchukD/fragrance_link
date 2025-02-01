@@ -1,5 +1,7 @@
 package com.aroma.fragrance_link.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +20,7 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonView(Views.PerfumeDetails.class)
     private String name;
 
     private String description;
@@ -25,6 +28,7 @@ public class Brand {
     private String country;
 
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("brand")
     private List<Perfume> perfumes;
 
     public Long getId() {

@@ -2,11 +2,19 @@ package com.aroma.fragrance_link.controller;
 
 import com.aroma.fragrance_link.entity.Brand;
 import com.aroma.fragrance_link.service.BrandService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/brands")
+@RequestMapping("/api/brands")
 public class BrandController {
     private final BrandService brandService;
 
