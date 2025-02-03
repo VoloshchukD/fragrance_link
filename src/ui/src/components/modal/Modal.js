@@ -37,8 +37,7 @@ const Modal = ({ isOpen, onClose, title, children, onSave }) => {
               type="button"
               className="btn btn-primary"
               onClick={() => {
-                if (onSave) onSave();
-                onClose();
+                onSave();
               }}
             >
               Save changes

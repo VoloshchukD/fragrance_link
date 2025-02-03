@@ -1,15 +1,35 @@
 import React from "react";
 import Modal from "./Modal";
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+
+const schema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  description: Yup.string().nullable(),
+  brandId: Yup.number()
+    .required("Brand is required")
+    .typeError("Brand must be selected"),
+});
 
 function PerfumeCreateModal() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    brandId: "",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
   });
+
+  const clearForm = () => {
+    setValue("name", "");
+    setValue("description", "");
+    setValue("brandId", "");
+  };
 
   const [brands, setBrands] = useState([]);
 
@@ -31,30 +51,26 @@ function PerfumeCreateModal() {
     fetchBrands();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleOpen = () => setIsModalOpen(true);
-  const handleClose = () => setIsModalOpen(false);
-  const handleSave = async (e) => {
+  const handleClose = () => {
+    setIsModalOpen(false);
+    clearForm();
+  };
+  const handleSave = async (data) => {
     const response = await fetch("/api/perfumes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: formData.name,
-        description: formData.description,
-        brand: { id: formData.brandId },
+        name: data.name,
+        description: data.description,
+        brand: { id: data.brandId },
       }),
     });
 
     if (response.ok) {
-      alert("Perfume added successfully!");
-      setFormData({ name: "", description: "", brandId: "" });
-    } else {
-      alert("Error adding perfume");
+      handleClose();
     }
   };
 
@@ -68,7 +84,7 @@ function PerfumeCreateModal() {
         isOpen={isModalOpen}
         onClose={handleClose}
         title="Add New Perfume"
-        onSave={handleSave}
+        onSave={handleSubmit(handleSave)}
       >
         <form>
           <div className="form-group">
@@ -77,9 +93,7 @@ function PerfumeCreateModal() {
               id="perfumeBrand"
               className="form-control"
               name="brandId"
-              value={formData.brandId}
-              onChange={handleChange}
-              required
+              {...register("brandId")}
             >
               <option value="">Select a brand</option>
               {brands.map((brand) => (
@@ -88,6 +102,9 @@ function PerfumeCreateModal() {
                 </option>
               ))}
             </select>
+            {errors.brandId && (
+              <p className="text-danger">{errors.brandId.message}</p>
+            )}
           </div>
 
           <div className="form-group">
@@ -99,10 +116,11 @@ function PerfumeCreateModal() {
               aria-describedby="emailHelp"
               placeholder="Perfume name"
               name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              {...register("name")}
             />
+            {errors.name && (
+              <p className="text-danger">{errors.name.message}</p>
+            )}
           </div>
           <div className="form-group">
             <label htmlFor="perfumeDescription">Description</label>
@@ -112,9 +130,9 @@ function PerfumeCreateModal() {
               placeholder="Perfume name"
               rows="3"
               name="description"
-              value={formData.description}
-              onChange={handleChange}
+              {...register("description")}
             ></textarea>
+            {errors.description && <p>{errors.description.message}</p>}
           </div>
         </form>
       </Modal>
