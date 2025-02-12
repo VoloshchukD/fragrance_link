@@ -5,6 +5,7 @@ import Error from "./components/Error";
 import PerfumeTable from "./components/PerfumeTable";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import SignUpPage from "./pages/SignUpPage";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ function App() {
               <Route path={"perfumes"} element={<PerfumeTable />} />
               <Route path={"*"} element={<Error />} />
             </Route>
+            <Route path={"registration"} element={<SignUpPage />} />
           </Routes>
         </BrowserRouter>
       </div>

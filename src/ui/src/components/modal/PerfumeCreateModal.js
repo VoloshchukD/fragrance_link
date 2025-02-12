@@ -13,7 +13,7 @@ const schema = Yup.object().shape({
     .typeError("Brand must be selected"),
 });
 
-function PerfumeCreateModal() {
+function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
@@ -30,6 +30,8 @@ function PerfumeCreateModal() {
     setValue("description", "");
     setValue("brandId", "");
   };
+
+  const [perfume, setPerfume] = useState({});
 
   const [brands, setBrands] = useState([]);
 
@@ -51,7 +53,16 @@ function PerfumeCreateModal() {
     fetchBrands();
   }, []);
 
-  const handleOpen = () => setIsModalOpen(true);
+  const handleOpen = () => {
+    if (isEdit) {
+      console.log(perfumeData.id);
+      let resp = getPerfume(perfumeData.id);
+      setPerfume(resp);
+      console.log(perfume);
+    }
+
+    setIsModalOpen(true);
+  };
   const handleClose = () => {
     setIsModalOpen(false);
     clearForm();
@@ -74,6 +85,10 @@ function PerfumeCreateModal() {
     }
   };
 
+  const handleEdit = async (data) => {
+    alert("edit");
+  };
+
   return (
     <div>
       <button className="btn btn-primary" onClick={handleOpen}>
@@ -84,7 +99,7 @@ function PerfumeCreateModal() {
         isOpen={isModalOpen}
         onClose={handleClose}
         title="Add New Perfume"
-        onSave={handleSubmit(handleSave)}
+        onSave={handleSubmit(isEdit ? handleEdit : handleSave)}
       >
         <form>
           <div className="form-group">
@@ -94,6 +109,7 @@ function PerfumeCreateModal() {
               className="form-control"
               name="brandId"
               {...register("brandId")}
+              disabled={isEdit}
             >
               <option value="">Select a brand</option>
               {brands.map((brand) => (
@@ -141,3 +157,18 @@ function PerfumeCreateModal() {
 }
 
 export default PerfumeCreateModal;
+
+const getPerfume = async (perfumeId) => {
+  let url = `/api/perfumes/${perfumeId}`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+
+  console.log(JSON.stringify(data));
+  return data;
+};

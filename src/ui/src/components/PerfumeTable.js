@@ -12,13 +12,6 @@ function PerfumeTable() {
 
   const perfumes = data || [];
 
-  const handleDelete = async (id) => {
-    let url = `/api/perfumes/${id}`;
-    const response = await fetch(url, {
-      method: "DELETE",
-    });
-  };
-
   return (
     <>
       <h1>Perfumes</h1>
@@ -41,9 +34,7 @@ function PerfumeTable() {
               <td>{perfume.name}</td>
               <td>{perfume.description}</td>
               <td>
-                <button type="button" className="btn btn-warning">
-                  Edit
-                </button>
+                <PerfumeCreateModal perfumeData={perfume} isEdit={true} />
                 <button
                   type="button"
                   className="btn btn-danger delete"
@@ -59,5 +50,12 @@ function PerfumeTable() {
     </>
   );
 }
+
+const handleDelete = async (id) => {
+  let url = `/api/perfumes/${id}`;
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+};
 
 export default PerfumeTable;
