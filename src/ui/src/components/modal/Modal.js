@@ -1,6 +1,6 @@
 import React from "react";
 
-const Modal = ({ isOpen, onClose, title, children, onSave }) => {
+const Modal = ({ isOpen, onClose, children, onSave, formText }) => {
   if (!isOpen) return null;
 
   return (
@@ -15,7 +15,7 @@ const Modal = ({ isOpen, onClose, title, children, onSave }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h1 className="modal-title fs-5" id="exampleModalLabel">
-              {title}
+              {formText.title}
             </h1>
             <button
               type="button"
@@ -31,7 +31,7 @@ const Modal = ({ isOpen, onClose, title, children, onSave }) => {
               className="btn btn-secondary"
               onClick={onClose}
             >
-              Close
+              {formText.cancel}
             </button>
             <button
               type="button"
@@ -40,7 +40,7 @@ const Modal = ({ isOpen, onClose, title, children, onSave }) => {
                 onSave();
               }}
             >
-              Save changes
+              {formText.submit}
             </button>
           </div>
         </div>

@@ -31,8 +31,6 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
     setValue("brandId", "");
   };
 
-  const [perfume, setPerfume] = useState({});
-
   const [brands, setBrands] = useState([]);
 
   useEffect(() => {
@@ -53,19 +51,22 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
     fetchBrands();
   }, []);
 
-  const handleOpen = () => {
-    if (isEdit) {
-      console.log(perfumeData.id);
-      let resp = getPerfume(perfumeData.id);
-      setPerfume(resp);
-      console.log(perfume);
+  useEffect(() => {
+    if (isEdit && perfumeData) {
+      setValue("name", perfumeData.name);
+      setValue("description", perfumeData.description);
+      setValue("brandId", perfumeData.brand.id);
     }
+  }, [isEdit, perfumeData, setValue]);
 
+  const handleOpen = () => {
     setIsModalOpen(true);
   };
   const handleClose = () => {
     setIsModalOpen(false);
-    clearForm();
+    if (!isEdit) {
+      clearForm();
+    }
   };
   const handleSave = async (data) => {
     const response = await fetch("/api/perfumes", {
@@ -86,8 +87,35 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
   };
 
   const handleEdit = async (data) => {
-    alert("edit");
+    const response = await fetch("/api/perfumes", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: perfumeData.id,
+        name: data.name,
+        description: data.description,
+        brand: { id: data.brandId },
+      }),
+    });
+
+    if (response.ok) {
+      handleClose();
+    }
   };
+
+  const formObject = isEdit
+    ? {
+        title: "Edit Perfume",
+        submit: "Edit",
+        cancel: "Cancel",
+      }
+    : {
+        title: "Add Perfume",
+        submit: "Create",
+        cancel: "Cancel",
+      };
 
   return (
     <div>
@@ -98,8 +126,8 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
       <Modal
         isOpen={isModalOpen}
         onClose={handleClose}
-        title="Add New Perfume"
         onSave={handleSubmit(isEdit ? handleEdit : handleSave)}
+        formText={formObject}
       >
         <form>
           <div className="form-group">
@@ -109,9 +137,15 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
               className="form-control"
               name="brandId"
               {...register("brandId")}
-              disabled={isEdit}
             >
-              <option value="">Select a brand</option>
+              {isEdit ? (
+                <option key={perfumeData.brand.id} value={perfumeData.brand.id}>
+                  {perfumeData.brand.name}
+                </option>
+              ) : (
+                <option value="">Select a brand</option>
+              )}
+
               {brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
                   {brand.name}
