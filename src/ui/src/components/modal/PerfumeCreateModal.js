@@ -13,26 +13,11 @@ const schema = Yup.object().shape({
     .typeError("Brand must be selected"),
 });
 
+const editPefumeValidationSchema = schema.omit(["brandId"]);
+
 function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
-
-  const clearForm = () => {
-    setValue("name", "");
-    setValue("description", "");
-    setValue("brandId", "");
-  };
-
   const [brands, setBrands] = useState([]);
-
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -50,6 +35,21 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
 
     fetchBrands();
   }, []);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(isEdit ? editPefumeValidationSchema : schema),
+  });
+
+  const clearForm = () => {
+    setValue("name", "");
+    setValue("description", "");
+    setValue("brandId", "");
+  };
 
   useEffect(() => {
     if (isEdit && perfumeData) {
@@ -96,7 +96,7 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
         id: perfumeData.id,
         name: data.name,
         description: data.description,
-        brand: { id: data.brandId },
+        brand: { id: perfumeData.brand.id },
       }),
     });
 
@@ -132,26 +132,31 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
         <form>
           <div className="form-group">
             <label htmlFor="perfumeBrand">Perfume Brand</label>
-            <select
-              id="perfumeBrand"
-              className="form-control"
-              name="brandId"
-              {...register("brandId")}
-            >
-              {isEdit ? (
-                <option key={perfumeData.brand.id} value={perfumeData.brand.id}>
-                  {perfumeData.brand.name}
-                </option>
-              ) : (
+            {isEdit ? (
+              <input
+                type="text"
+                className="form-control"
+                id="perfumeName"
+                aria-describedby="emailHelp"
+                placeholder="Perfume name"
+                value={perfumeData.brand.name}
+                disabled
+              />
+            ) : (
+              <select
+                id="perfumeBrand"
+                className="form-control"
+                name="brandId"
+                {...register("brandId")}
+              >
                 <option value="">Select a brand</option>
-              )}
-
-              {brands.map((brand) => (
-                <option key={brand.id} value={brand.id}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={brand.id}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
+            )}
             {errors.brandId && (
               <p className="text-danger">{errors.brandId.message}</p>
             )}
@@ -203,6 +208,5 @@ const getPerfume = async (perfumeId) => {
 
   const data = await response.json();
 
-  console.log(JSON.stringify(data));
   return data;
 };

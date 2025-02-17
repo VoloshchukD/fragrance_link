@@ -8,15 +8,15 @@ function Layout() {
         <div className="container-fluid">
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div className="navbar-nav">
-              <a className="nav-link">
-                <Link to={"/"}>Home</Link>
-              </a>
-              <a className="nav-link">
-                <Link to={"perfumes"}>Perfumes</Link>
-              </a>
-              <a className="nav-link">
-                <Link to={"users"}>Users</Link>
-              </a>
+              <Link to={"/"} className="nav-link">
+                Home
+              </Link>
+              <Link to={"perfumes"} className="nav-link">
+                Perfumes
+              </Link>
+              <Link to={"users"} className="nav-link">
+                Users
+              </Link>
             </div>
           </div>
         </div>

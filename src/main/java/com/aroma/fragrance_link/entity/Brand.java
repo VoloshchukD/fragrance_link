@@ -14,10 +14,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "brand")
+@JsonIgnoreProperties({"perfumes"})
 public class Brand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonView(Views.PerfumeDetails.class)
     private Long id;
 
     @JsonView(Views.PerfumeDetails.class)
