@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import PerfumeCreateModal from "./modal/PerfumeCreateModal";
 
@@ -8,15 +8,70 @@ const retrievePerfumes = async () => {
 };
 
 function PerfumeTable() {
-  const { isLoading, data } = useQuery("perfumes", retrievePerfumes);
+  const [perfumes, setPerfumes] = useState([]);
 
-  const perfumes = data || [];
+  useEffect(() => {
+    const fetchPerfumes = async () => {
+      try {
+        const data = await retrievePerfumes();
+        setPerfumes(data || []);
+      } catch (error) {
+        console.error("Error fetching perfumes:", error);
+      }
+    };
+
+    fetchPerfumes();
+  }, []);
+
+  const [brands, setBrands] = useState([]);
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const response = await fetch("/api/brands");
+        if (response.ok) {
+          const data = await response.json();
+          setBrands(data);
+        } else {
+          console.error("Failed to load brands");
+        }
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+
+    fetchBrands();
+  }, []);
+
+  const addPerfume = (newPerfume) => {
+    const brand = brands.find((brand) => brand.id === newPerfume.brand.id);
+
+    if (brand) {
+      newPerfume.brand.name = brand.name;
+    }
+
+    setPerfumes((prevPerfumes) => [...prevPerfumes, newPerfume]);
+  };
+
+  const editPerfume = (id, updatedPerfume) => {
+    setPerfumes(
+      perfumes.map((p) => (p.id === id ? { ...p, ...updatedPerfume } : p))
+    );
+  };
+
+  const handleDelete = async (id) => {
+    let url = `/api/perfumes/${id}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+    }).then(() => {
+      setPerfumes(perfumes.filter((p) => p.id !== id));
+    });
+  };
 
   return (
     <>
       <h1>Perfumes</h1>
 
-      <PerfumeCreateModal />
+      <PerfumeCreateModal addCallback={addPerfume} editCallback={editPerfume} />
 
       <table className="table">
         <thead>
@@ -34,11 +89,16 @@ function PerfumeTable() {
               <td>{perfume.name}</td>
               <td>{perfume.description}</td>
               <td>
-                <PerfumeCreateModal perfumeData={perfume} isEdit={true} />
+                <PerfumeCreateModal
+                  perfumeData={perfume}
+                  isEdit={true}
+                  addCallback={addPerfume}
+                  editCallback={editPerfume}
+                />
                 <button
                   type="button"
                   className="btn btn-danger delete"
-                  onClick={() => handleDelete(perfume.id)}
+                  onClick={() => handleDelete(perfume.id, perfumes)}
                 >
                   Delete
                 </button>
@@ -50,12 +110,5 @@ function PerfumeTable() {
     </>
   );
 }
-
-const handleDelete = async (id) => {
-  let url = `/api/perfumes/${id}`;
-  const response = await fetch(url, {
-    method: "DELETE",
-  });
-};
 
 export default PerfumeTable;

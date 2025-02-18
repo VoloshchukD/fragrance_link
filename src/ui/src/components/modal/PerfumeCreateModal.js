@@ -15,7 +15,12 @@ const schema = Yup.object().shape({
 
 const editPefumeValidationSchema = schema.omit(["brandId"]);
 
-function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
+function PerfumeCreateModal({
+  perfumeData = null,
+  isEdit = false,
+  addCallback,
+  editCallback,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [brands, setBrands] = useState([]);
   useEffect(() => {
@@ -82,6 +87,8 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
     });
 
     if (response.ok) {
+      const added = await response.json();
+      addCallback(added);
       handleClose();
     }
   };
@@ -99,6 +106,15 @@ function PerfumeCreateModal({ perfumeData = null, isEdit = false }) {
         brand: { id: perfumeData.brand.id },
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const updatedPerfume = await response.json();
+    console.log("Updated perfume:", updatedPerfume);
+
+    editCallback(perfumeData.id, updatedPerfume);
 
     if (response.ok) {
       handleClose();
