@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PerfumeCreateModal from "./modal/PerfumeCreateModal";
+import Alert from "./Alert";
 
 const retrievePerfumes = async () => {
   const response = await axios.get("/api/perfumes");
@@ -9,6 +10,12 @@ const retrievePerfumes = async () => {
 
 function PerfumeTable() {
   const [perfumes, setPerfumes] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [trigger, setTrigger] = useState(false);
+
+  const toggleAlert = () => {
+    setTrigger((prev) => !prev);
+  };
 
   useEffect(() => {
     const fetchPerfumes = async () => {
@@ -64,11 +71,13 @@ function PerfumeTable() {
       method: "DELETE",
     }).then(() => {
       setPerfumes(perfumes.filter((p) => p.id !== id));
+      toggleAlert();
     });
   };
 
   return (
     <>
+      <Alert message="This is an alert message!" trigger={trigger} />
       <h1>Perfumes</h1>
 
       <PerfumeCreateModal addCallback={addPerfume} editCallback={editPerfume} />
@@ -97,7 +106,7 @@ function PerfumeTable() {
                 />
                 <button
                   type="button"
-                  className="btn btn-danger delete"
+                  className="btn btn-danger"
                   onClick={() => handleDelete(perfume.id, perfumes)}
                 >
                   Delete

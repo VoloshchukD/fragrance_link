@@ -126,17 +126,21 @@ function PerfumeCreateModal({
         title: "Edit Perfume",
         submit: "Edit",
         cancel: "Cancel",
+        launchModalClassName: "btn btn-warning btn-margin",
+        launchModalButtonText: "Edit"
       }
     : {
         title: "Add Perfume",
         submit: "Create",
         cancel: "Cancel",
+        launchModalClassName: "btn btn-primary btn-margin",
+        launchModalButtonText: "Add New Perfume"
       };
 
   return (
-    <div>
-      <button className="btn btn-primary" onClick={handleOpen}>
-        Launch Modal
+    <div style={{ display: 'inline-block' }}>
+      <button className={formObject.launchModalClassName} onClick={handleOpen}>
+        {formObject.launchModalButtonText}
       </button>
 
       <Modal
