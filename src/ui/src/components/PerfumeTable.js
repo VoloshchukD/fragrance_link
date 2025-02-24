@@ -10,11 +10,10 @@ const retrievePerfumes = async () => {
 
 function PerfumeTable() {
   const [perfumes, setPerfumes] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [trigger, setTrigger] = useState(false);
+  const [alertTrigger, setAlertTrigger] = useState(0);
 
-  const toggleAlert = () => {
-    setTrigger((prev) => !prev);
+  const triggerAlert = () => {
+    setAlertTrigger((v) => v + 1);
   };
 
   useEffect(() => {
@@ -71,13 +70,13 @@ function PerfumeTable() {
       method: "DELETE",
     }).then(() => {
       setPerfumes(perfumes.filter((p) => p.id !== id));
-      toggleAlert();
+      triggerAlert();
     });
   };
 
   return (
     <>
-      <Alert message="This is an alert message!" trigger={trigger} />
+      <Alert message="This is an alert message!" trigger={alertTrigger} />
       <h1>Perfumes</h1>
 
       <PerfumeCreateModal addCallback={addPerfume} editCallback={editPerfume} />
