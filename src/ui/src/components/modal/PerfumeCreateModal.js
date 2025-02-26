@@ -1,9 +1,9 @@
-import React from "react";
 import Modal from "./Modal";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
+import axios from "axios";
 
 const schema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -13,33 +13,16 @@ const schema = Yup.object().shape({
     .typeError("Brand must be selected"),
 });
 
-const editPefumeValidationSchema = schema.omit(["brandId"]);
+const editPerfumeValidationSchema = schema.omit(["brandId"]);
 
 function PerfumeCreateModal({
   perfumeData = null,
   isEdit = false,
   addCallback,
   editCallback,
+  brands = [],
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [brands, setBrands] = useState([]);
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const response = await fetch("/api/brands");
-        if (response.ok) {
-          const data = await response.json();
-          setBrands(data);
-        } else {
-          console.error("Failed to load brands");
-        }
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-      }
-    };
-
-    fetchBrands();
-  }, []);
 
   const {
     register,
@@ -47,7 +30,7 @@ function PerfumeCreateModal({
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(isEdit ? editPefumeValidationSchema : schema),
+    resolver: yupResolver(isEdit ? editPerfumeValidationSchema : schema),
   });
 
   const clearForm = () => {
@@ -74,80 +57,73 @@ function PerfumeCreateModal({
     }
   };
   const handleSave = async (data) => {
-    const response = await fetch("/api/perfumes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: data.name,
-        description: data.description,
-        brand: { id: data.brandId },
-      }),
-    });
-
-    if (response.ok) {
-      const added = await response.json();
-      addCallback(added);
-      handleClose();
-    }
+    axios
+      .post(
+        "/api/perfumes",
+        {
+          name: data.name,
+          description: data.description,
+          brand: { id: data.brandId },
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((data) => {
+        addCallback(data.data);
+        handleClose();
+      });
   };
 
   const handleEdit = async (data) => {
-    const response = await fetch("/api/perfumes", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: perfumeData.id,
-        name: data.name,
-        description: data.description,
-        brand: { id: perfumeData.brand.id },
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const updatedPerfume = await response.json();
-    console.log("Updated perfume:", updatedPerfume);
-
-    editCallback(perfumeData.id, updatedPerfume);
-
-    if (response.ok) {
-      handleClose();
-    }
+    axios
+      .put(
+        "/api/perfumes",
+        {
+          id: perfumeData.id,
+          name: data.name,
+          description: data.description,
+          brand: { id: perfumeData.brand.id },
+        },
+        {
+          "Content-Type": "application/json",
+        }
+      )
+      .then((updated) => {
+        editCallback(perfumeData.id, updated.data);
+        handleClose();
+      });
   };
 
-  const formObject = isEdit
+  const modalConfig = isEdit
     ? {
         title: "Edit Perfume",
         submit: "Edit",
         cancel: "Cancel",
         launchModalClassName: "btn btn-warning btn-margin",
-        launchModalButtonText: "Edit"
+        launchModalButtonText: "Edit",
       }
     : {
         title: "Add Perfume",
         submit: "Create",
         cancel: "Cancel",
         launchModalClassName: "btn btn-primary btn-margin",
-        launchModalButtonText: "Add New Perfume"
+        launchModalButtonText: "Add New Perfume",
       };
 
   return (
-    <div style={{ display: 'inline-block' }}>
-      <button className={formObject.launchModalClassName} onClick={handleOpen}>
-        {formObject.launchModalButtonText}
+    <div style={{ display: "inline-block" }}>
+      <button className={modalConfig.launchModalClassName} onClick={handleOpen}>
+        {modalConfig.launchModalButtonText}
       </button>
 
       <Modal
         isOpen={isModalOpen}
         onClose={handleClose}
         onSave={handleSubmit(isEdit ? handleEdit : handleSave)}
-        formText={formObject}
+        formText={modalConfig}
       >
         <form>
           <div className="form-group">
@@ -216,17 +192,3 @@ function PerfumeCreateModal({
 }
 
 export default PerfumeCreateModal;
-
-const getPerfume = async (perfumeId) => {
-  let url = `/api/perfumes/${perfumeId}`;
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  const data = await response.json();
-
-  return data;
-};
