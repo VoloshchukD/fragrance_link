@@ -1,8 +1,8 @@
 import "./App.css";
 import Layout from "./components/Layout";
-import Home from "./components/Home";
-import Error from "./components/Error";
-import PerfumeTable from "./components/PerfumeTable";
+import Home from "./pages/Home";
+import Error from "./pages/Error";
+import PerfumeTable from "./pages/PerfumeTable";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SignUpPage from "./pages/SignUpPage";

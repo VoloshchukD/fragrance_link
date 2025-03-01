@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
+import { NotificationProvider } from "./alert/NotificationContext";
 
 function Layout() {
   return (
@@ -22,7 +23,9 @@ function Layout() {
         </div>
       </nav>
       <div>
+      <NotificationProvider>
         <Outlet />
+      </NotificationProvider>
       </div>
     </>
   );

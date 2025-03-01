@@ -67,8 +67,8 @@ function PerfumeCreateModal({
         },
         {
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Content-Type": "application/json"
+          }
         }
       )
       .then((data) => {
@@ -88,7 +88,9 @@ function PerfumeCreateModal({
           brand: { id: perfumeData.brand.id },
         },
         {
-          "Content-Type": "application/json",
+          headers: {
+            "Content-Type": "application/json"
+          }
         }
       )
       .then((updated) => {
